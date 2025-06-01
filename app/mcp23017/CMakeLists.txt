@@ -1,21 +1,17 @@
 add_library(mcp23017 STATIC)
 
 target_sources(mcp23017 PRIVATE 
-    "mcp23017.cpp"
+    "mcp23017.c"
 )
 
-target_include_directories(mcp23017 PUBLIC 
-    "."
-    ${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(mcp23017 PUBLIC
 )
 
 target_link_libraries(mcp23017 PRIVATE
-    utility
-    stm32cubemx
 )
 
 target_compile_options(mcp23017 PUBLIC
-    -std=c++23
+    -std=c23
     -Wall
     -Wextra
     -Wconversion
@@ -33,5 +29,4 @@ target_compile_options(mcp23017 PUBLIC
     -Wdouble-promotion
     -Wimplicit-fallthrough
     -Wcast-align
-    -fconcepts
 )
