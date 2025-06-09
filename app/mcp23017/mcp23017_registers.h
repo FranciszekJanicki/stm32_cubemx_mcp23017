@@ -4,9 +4,7 @@
 #include "mcp23017_config.h"
 #include <stdint.h>
 
-#define PACKED __attribute__((packed))
-
-typedef struct {
+typedef union {
     uint8_t io7 : 1;
     uint8_t io6 : 1;
     uint8_t io5 : 1;
@@ -15,7 +13,7 @@ typedef struct {
     uint8_t io2 : 1;
     uint8_t io1 : 1;
     uint8_t io0 : 1;
-} PACKED mcp23017_iodir_reg_t;
+} mcp23017_iodir_reg_t;
 
 typedef struct {
     uint8_t ip7 : 1;
@@ -26,7 +24,7 @@ typedef struct {
     uint8_t ip2 : 1;
     uint8_t ip1 : 1;
     uint8_t ip0 : 1;
-} PACKED mcp23017_ipol_reg_t;
+} mcp23017_ipol_reg_t;
 
 typedef struct {
     uint8_t gpint7 : 1;
@@ -37,7 +35,7 @@ typedef struct {
     uint8_t gpint2 : 1;
     uint8_t gpint1 : 1;
     uint8_t gpint0 : 1;
-} PACKED mcp23017_gpinten_reg_t;
+} mcp23017_gpinten_reg_t;
 
 typedef struct {
     uint8_t def7 : 1;
@@ -48,7 +46,7 @@ typedef struct {
     uint8_t def2 : 1;
     uint8_t def1 : 1;
     uint8_t def0 : 1;
-} PACKED mcp23017_defval_reg_t;
+} mcp23017_defval_reg_t;
 
 typedef struct {
     uint8_t ioc7 : 1;
@@ -59,7 +57,7 @@ typedef struct {
     uint8_t ioc2 : 1;
     uint8_t ioc1 : 1;
     uint8_t ioc0 : 1;
-} PACKED mcp23017_intcon_reg_t;
+} mcp23017_intcon_reg_t;
 
 typedef struct {
     uint8_t bank : 1;
@@ -69,7 +67,7 @@ typedef struct {
     uint8_t haen : 1;
     uint8_t odr : 1;
     uint8_t intpol : 1;
-} PACKED mcp23017_iocon_reg_t;
+} mcp23017_iocon_reg_t;
 
 typedef struct {
     uint8_t pu7 : 1;
@@ -80,7 +78,7 @@ typedef struct {
     uint8_t pu2 : 1;
     uint8_t pu1 : 1;
     uint8_t pu0 : 1;
-} PACKED mcp23017_gppu_reg_t;
+} mcp23017_gppu_reg_t;
 
 typedef struct {
     uint8_t int7 : 1;
@@ -91,7 +89,7 @@ typedef struct {
     uint8_t int2 : 1;
     uint8_t int1 : 1;
     uint8_t int0 : 1;
-} PACKED mcp23017_intf_reg_t;
+} mcp23017_intf_reg_t;
 
 typedef struct {
     uint8_t icp7 : 1;
@@ -102,10 +100,17 @@ typedef struct {
     uint8_t icp2 : 1;
     uint8_t icp1 : 1;
     uint8_t icp0 : 1;
-} PACKED mcp23017_intcap_reg_t;
+} mcp23017_intcap_reg_t;
 
 typedef struct {
-    uint8_t gp : 8;
-} PACKED mcp23017_gpio_reg_t;
+    uint8_t gp7 : 1;
+    uint8_t gp6 : 1;
+    uint8_t gp5 : 1;
+    uint8_t gp4 : 1;
+    uint8_t gp3 : 1;
+    uint8_t gp2 : 1;
+    uint8_t gp1 : 1;
+    uint8_t gp0 : 1;
+} mcp23017_gpio_reg_t;
 
 #endif // MCP23017_MCP23017_REGISTERS_H
