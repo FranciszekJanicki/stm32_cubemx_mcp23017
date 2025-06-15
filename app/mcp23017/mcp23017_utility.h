@@ -3,41 +3,41 @@
 
 #include "mcp23017_config.h"
 
-inline uint8_t mcp23017_separate_bank_port_to_reg_address(mcp23017_port_t port,
-                                                          mcp23017_reg_address_t reg_address)
+inline uint8_t mcp23017_separate_bank_port_to_address(mcp23017_port_t port,
+                                                      mcp23017_reg_address_t address)
 {
     switch (port) {
         case MCP23017_PORT_A:
-            return reg_address;
+            return address;
         case MCP23017_PORT_B:
-            return reg_address + 10U;
+            return address + 10U;
         default:
             return 0U;
     }
 }
 
-inline uint8_t mcp23017_common_bank_port_to_reg_address(mcp23017_port_t port,
-                                                        mcp23017_reg_address_t reg_address)
+inline uint8_t mcp23017_common_bank_port_to_address(mcp23017_port_t port,
+                                                    mcp23017_reg_address_t address)
 {
     switch (port) {
         case MCP23017_PORT_A:
-            return reg_address;
+            return address;
         case MCP23017_PORT_B:
-            return reg_address + 1U;
+            return address + 1U;
         default:
             return 0U;
     }
 }
 
-inline uint8_t mcp23017_port_to_reg_address(mcp23017_port_t port,
-                                            mcp23017_bank_t bank,
-                                            mcp23017_reg_address_t reg_address)
+inline uint8_t mcp23017_port_to_address(mcp23017_port_t port,
+                                        mcp23017_bank_t bank,
+                                        mcp23017_reg_address_t address)
 {
     switch (bank) {
         case MCP23017_BANK_SEPARATE:
-            return mcp23017_separate_bank_port_to_reg_address(port, reg_address);
+            return mcp23017_separate_bank_port_to_address(port, address);
         case MCP23017_BANK_COMMON:
-            return mcp23017_common_bank_port_to_reg_address(port, reg_address);
+            return mcp23017_common_bank_port_to_address(port, address);
         default:
             return 0U;
     }

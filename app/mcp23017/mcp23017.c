@@ -42,26 +42,26 @@ static mcp23017_err_t mcp23017_bus_read(mcp23017_t const* mcp23017,
                                         : MCP23017_ERR_NULL;
 }
 
-static mcp23017_err_t mcp23017_bus_port_write(mcp23017_t const* mcp23017,
-                                              mcp23017_port_t port,
-                                              uint8_t address,
-                                              uint8_t const* data,
-                                              size_t data_size)
+static mcp23017_err_t mcp23017_port_write(mcp23017_t const* mcp23017,
+                                          mcp23017_port_t port,
+                                          uint8_t address,
+                                          uint8_t const* data,
+                                          size_t data_size)
 {
     return mcp23017_bus_write(mcp23017,
-                              mcp23017_port_to_reg_address(port, mcp23017->config.bank, address),
+                              mcp23017_port_to_address(port, mcp23017->config.bank, address),
                               data,
                               data_size);
 }
 
-static mcp23017_err_t mcp23017_bus_port_read(mcp23017_t const* mcp23017,
-                                             mcp23017_port_t port,
-                                             uint8_t address,
-                                             uint8_t* data,
-                                             size_t data_size)
+static mcp23017_err_t mcp23017_port_read(mcp23017_t const* mcp23017,
+                                         mcp23017_port_t port,
+                                         uint8_t address,
+                                         uint8_t* data,
+                                         size_t data_size)
 {
     return mcp23017_bus_read(mcp23017,
-                             mcp23017_port_to_reg_address(port, mcp23017->config.bank, address),
+                             mcp23017_port_to_address(port, mcp23017->config.bank, address),
                              data,
                              data_size);
 }
@@ -100,7 +100,7 @@ mcp23017_err_t mcp23017_get_pin_state(mcp23017_t const* mcp23017,
     uint8_t reg = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &reg, sizeof(reg));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &reg, sizeof(reg));
 
     *pin_state = (uint8_t)(reg & (1U << pin_num)) ? MCP23017_PIN_STATE_LOGIC_HIGH
                                                   : MCP23017_PIN_STATE_LOGIC_LOW;
@@ -118,12 +118,12 @@ mcp23017_err_t mcp23017_set_pin_state(mcp23017_t const* mcp23017,
     uint8_t reg = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &reg, sizeof(reg));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &reg, sizeof(reg));
 
     reg &= ~(uint8_t)(1U << pin_num);
     reg |= (uint8_t)((pin_state ? 1U : 0U) << pin_num);
 
-    err |= mcp23017_bus_port_write(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &reg, sizeof(reg));
+    err |= mcp23017_port_write(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &reg, sizeof(reg));
 
     return err;
 }
@@ -137,11 +137,11 @@ mcp23017_err_t mcp23017_toggle_pin_state(mcp23017_t const* mcp23017,
     uint8_t reg = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &reg, sizeof(reg));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &reg, sizeof(reg));
 
     reg ^= (uint8_t)(1U << pin_num);
 
-    err |= mcp23017_bus_port_write(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &reg, sizeof(reg));
+    err |= mcp23017_port_write(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &reg, sizeof(reg));
 
     return err;
 }
@@ -155,7 +155,7 @@ mcp23017_err_t mcp23017_get_iodir_reg(mcp23017_t const* mcp23017,
     uint8_t data = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_IODIR, &data, sizeof(data));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_IODIR, &data, sizeof(data));
 
     reg->io7 = (data >> 7U) & 0x01U;
     reg->io6 = (data >> 6U) & 0x01U;
@@ -186,7 +186,7 @@ mcp23017_err_t mcp23017_set_iodir_reg(mcp23017_t const* mcp23017,
     data |= (reg->io1 & 0x01U) << 1U;
     data |= (reg->io0 & 0x01U) << 0U;
 
-    return mcp23017_bus_port_write(mcp23017, port, MCP23017_REG_ADDRESS_IODIR, &data, sizeof(data));
+    return mcp23017_port_write(mcp23017, port, MCP23017_REG_ADDRESS_IODIR, &data, sizeof(data));
 }
 
 mcp23017_err_t mcp23017_get_ipol_reg(mcp23017_t const* mcp23017,
@@ -198,7 +198,7 @@ mcp23017_err_t mcp23017_get_ipol_reg(mcp23017_t const* mcp23017,
     uint8_t data = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_IPOL, &data, sizeof(data));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_IPOL, &data, sizeof(data));
 
     reg->ip7 = (data >> 7U) & 0x01U;
     reg->ip6 = (data >> 6U) & 0x01U;
@@ -229,7 +229,7 @@ mcp23017_err_t mcp23017_set_ipol_reg(mcp23017_t const* mcp23017,
     data |= (reg->ip1 & 0x01U) << 1U;
     data |= (reg->ip0 & 0x01U) << 0U;
 
-    return mcp23017_bus_port_write(mcp23017, port, MCP23017_REG_ADDRESS_IPOL, &data, sizeof(data));
+    return mcp23017_port_write(mcp23017, port, MCP23017_REG_ADDRESS_IPOL, &data, sizeof(data));
 }
 
 mcp23017_err_t mcp23017_get_gpinten_reg(mcp23017_t const* mcp23017,
@@ -241,7 +241,7 @@ mcp23017_err_t mcp23017_get_gpinten_reg(mcp23017_t const* mcp23017,
     uint8_t data = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPINTEN, &data, sizeof(data));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPINTEN, &data, sizeof(data));
 
     reg->gpint7 = (data >> 7U) & 0x01U;
     reg->gpint6 = (data >> 6U) & 0x01U;
@@ -272,11 +272,7 @@ mcp23017_err_t mcp23017_set_gpinten_reg(mcp23017_t const* mcp23017,
     data |= (reg->gpint1 & 0x01U) << 1U;
     data |= (reg->gpint0 & 0x01U) << 0U;
 
-    return mcp23017_bus_port_write(mcp23017,
-                                   port,
-                                   MCP23017_REG_ADDRESS_GPINTEN,
-                                   &data,
-                                   sizeof(data));
+    return mcp23017_port_write(mcp23017, port, MCP23017_REG_ADDRESS_GPINTEN, &data, sizeof(data));
 }
 
 mcp23017_err_t mcp23017_get_defval_reg(mcp23017_t const* mcp23017,
@@ -288,7 +284,7 @@ mcp23017_err_t mcp23017_get_defval_reg(mcp23017_t const* mcp23017,
     uint8_t data = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_DEFVAL, &data, sizeof(data));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_DEFVAL, &data, sizeof(data));
 
     reg->def7 = (data >> 7U) & 0x01U;
     reg->def6 = (data >> 6U) & 0x01U;
@@ -319,11 +315,7 @@ mcp23017_err_t mcp23017_set_defval_reg(mcp23017_t const* mcp23017,
     data |= (reg->def1 & 0x01U) << 1U;
     data |= (reg->def0 & 0x01U) << 0U;
 
-    return mcp23017_bus_port_write(mcp23017,
-                                   port,
-                                   MCP23017_REG_ADDRESS_DEFVAL,
-                                   &data,
-                                   sizeof(data));
+    return mcp23017_port_write(mcp23017, port, MCP23017_REG_ADDRESS_DEFVAL, &data, sizeof(data));
 }
 
 mcp23017_err_t mcp23017_get_intcon_reg(mcp23017_t const* mcp23017,
@@ -335,7 +327,7 @@ mcp23017_err_t mcp23017_get_intcon_reg(mcp23017_t const* mcp23017,
     uint8_t data = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_INTCON, &data, sizeof(data));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_INTCON, &data, sizeof(data));
 
     reg->ioc7 = (data >> 7U) & 0x01U;
     reg->ioc6 = (data >> 6U) & 0x01U;
@@ -366,11 +358,7 @@ mcp23017_err_t mcp23017_set_intcon_reg(mcp23017_t const* mcp23017,
     data |= (reg->ioc1 & 0x01U) << 1U;
     data |= (reg->ioc0 & 0x01U) << 0U;
 
-    return mcp23017_bus_port_write(mcp23017,
-                                   port,
-                                   MCP23017_REG_ADDRESS_INTCON,
-                                   &data,
-                                   sizeof(data));
+    return mcp23017_port_write(mcp23017, port, MCP23017_REG_ADDRESS_INTCON, &data, sizeof(data));
 }
 
 mcp23017_err_t mcp23017_get_iocon_reg(mcp23017_t const* mcp23017,
@@ -382,7 +370,7 @@ mcp23017_err_t mcp23017_get_iocon_reg(mcp23017_t const* mcp23017,
     uint8_t data = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_IOCON, &data, sizeof(data));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_IOCON, &data, sizeof(data));
 
     reg->bank = (data >> 7U) & 0x01U;
     reg->mirror = (data >> 6U) & 0x01U;
@@ -411,7 +399,7 @@ mcp23017_err_t mcp23017_set_iocon_reg(mcp23017_t const* mcp23017,
     data |= (reg->odr & 0x01U) << 2U;
     data |= (reg->intpol & 0x01U) << 1U;
 
-    return mcp23017_bus_port_write(mcp23017, port, MCP23017_REG_ADDRESS_IOCON, &data, sizeof(data));
+    return mcp23017_port_write(mcp23017, port, MCP23017_REG_ADDRESS_IOCON, &data, sizeof(data));
 }
 
 mcp23017_err_t mcp23017_get_gppu_reg(mcp23017_t const* mcp23017,
@@ -423,7 +411,7 @@ mcp23017_err_t mcp23017_get_gppu_reg(mcp23017_t const* mcp23017,
     uint8_t data = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPPU, &data, sizeof(data));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPPU, &data, sizeof(data));
 
     reg->pu7 = (data >> 7U) & 0x01U;
     reg->pu6 = (data >> 6U) & 0x01U;
@@ -454,7 +442,7 @@ mcp23017_err_t mcp23017_set_gppu_reg(mcp23017_t const* mcp23017,
     data |= (reg->pu1 & 0x01U) << 1U;
     data |= (reg->pu0 & 0x01U) << 0U;
 
-    return mcp23017_bus_port_write(mcp23017, port, MCP23017_REG_ADDRESS_GPPU, &data, sizeof(data));
+    return mcp23017_port_write(mcp23017, port, MCP23017_REG_ADDRESS_GPPU, &data, sizeof(data));
 }
 
 mcp23017_err_t mcp23017_get_intf_reg(mcp23017_t const* mcp23017,
@@ -466,7 +454,7 @@ mcp23017_err_t mcp23017_get_intf_reg(mcp23017_t const* mcp23017,
     uint8_t data = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_INTF, &data, sizeof(data));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_INTF, &data, sizeof(data));
 
     reg->int7 = (data >> 7U) & 0x01U;
     reg->int6 = (data >> 6U) & 0x01U;
@@ -489,7 +477,7 @@ mcp23017_err_t mcp23017_get_intcap_reg(mcp23017_t const* mcp23017,
     uint8_t data = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_INTCAP, &data, sizeof(data));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_INTCAP, &data, sizeof(data));
 
     reg->icp7 = (data >> 7U) & 0x01U;
     reg->icp6 = (data >> 6U) & 0x01U;
@@ -512,7 +500,7 @@ mcp23017_err_t mcp23017_get_gpio_reg(mcp23017_t const* mcp23017,
     uint8_t data = {};
 
     mcp23017_err_t err =
-        mcp23017_bus_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &data, sizeof(data));
+        mcp23017_port_read(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &data, sizeof(data));
 
     reg->gp7 = (data >> 7U) & 0x01U;
     reg->gp6 = (data >> 6U) & 0x01U;
@@ -543,5 +531,5 @@ mcp23017_err_t mcp23017_set_gpio_reg(mcp23017_t const* mcp23017,
     data |= (reg->gp1 & 0x01U) << 1U;
     data |= reg->gp0 & 0x01U;
 
-    return mcp23017_bus_port_write(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &data, sizeof(data));
+    return mcp23017_port_write(mcp23017, port, MCP23017_REG_ADDRESS_GPIO, &data, sizeof(data));
 }
